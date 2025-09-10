@@ -8,7 +8,7 @@ port = 8080
 logging.basicConfig(
     filename="server.log",
     level=logging.INFO,
-    format="%(message)s",   # we’ll write raw log lines
+    format="%(message)s", 
 )
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -94,3 +94,4 @@ while True:
 
     finally:
         client.close()
+
