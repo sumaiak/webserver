@@ -5,9 +5,9 @@ host = ''
 port = 8080
 
 logging.basicConfig(
-    filename="server.log",              
-    level=logging.INFO,                 
-    format="%(asctime)s [%(levelname)s] %(message)s", 
+    filename="server.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,17 +26,23 @@ while True:
         request = client.recv(1024).decode(errors="ignore")
         if not request:
             response = "HTTP/1.1 400 Bad Request\r\n\r\n<h1>400 Bad Request</h1>"
-            client.sendall(response.encode())
+            print("\n[REQUEST - EMPTY]")
+            print("[RESPONSE]\n", response)
             logging.warning("Empty request → 400 Bad Request")
+            logging.info("Response sent:\n%s", response)
+            client.sendall(response.encode())
             continue
 
         logging.info("Raw request:\n%s", request)
+        print("\n[REQUEST]\n", request)
 
         lines = request.splitlines()
         if not lines or len(lines[0].split()) != 3:
             response = "HTTP/1.1 400 Bad Request\r\n\r\n<h1>400 Bad Request</h1>"
-            client.sendall(response.encode())
+            print("[RESPONSE]\n", response)
             logging.warning("Malformed request → 400 Bad Request")
+            logging.info("Response sent:\n%s", response)
+            client.sendall(response.encode())
             continue
 
         method, path, version = lines[0].split()
@@ -44,14 +50,18 @@ while True:
 
         if path == "/bad":
             response = "HTTP/1.1 400 Bad Request\r\n\r\n<h1>400 Bad Request (demo)</h1>"
-            client.sendall(response.encode())
+            print("[RESPONSE]\n", response)
             logging.warning("Demo endpoint → 400 Bad Request")
+            logging.info("Response sent:\n%s", response)
+            client.sendall(response.encode())
             continue
 
         if not version.startswith("HTTP/"):
             response = "HTTP/1.1 400 Bad Request\r\n\r\n<h1>400 Bad Request</h1>"
-            client.sendall(response.encode())
+            print("[RESPONSE]\n", response)
             logging.warning("Bad HTTP version → 400 Bad Request")
+            logging.info("Response sent:\n%s", response)
+            client.sendall(response.encode())
             continue
 
         if path == '/':
@@ -77,11 +87,15 @@ while True:
             f"{body}"
         )
 
+        print("[RESPONSE]\n", response)
+        logging.info("Response sent:\n%s", response)
         client.sendall(response.encode())
 
     except Exception as e:
         logging.error("Unexpected error: %s", e)
         response = "HTTP/1.1 500 Internal Server Error\r\n\r\n<h1>500 Internal Server Error</h1>"
+        print("[RESPONSE - ERROR]\n", response)
+        logging.error("Response sent:\n%s", response)
         client.sendall(response.encode())
 
     finally:
